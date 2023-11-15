@@ -9,7 +9,6 @@ import os
 
 client = OpenAI()
 
-ASSISTANT_ID = "asst_8AK25U8esouKTA56PLN7hqwa"
 usr = '\U0001F600'
 bot = '\U0001F916'
 cmd = '\U0001F47B'
@@ -156,7 +155,7 @@ class GPT:
 
 def main(args):
     assistant_id = args[0]
-    gpt = GPT()
+    gpt = GPT(assistant_id)
     while True:
         chatLoop(gpt)
 
