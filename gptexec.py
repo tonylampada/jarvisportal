@@ -78,8 +78,9 @@ action_runners = {
 
 
 class GPT:
-    def __init__(self):
+    def __init__(self, assistant_id):
         self.thread_id = client.beta.threads.create().id
+        self.assistant_id = assistant_id
         self.last_messsage = None
         self.last_response = None
         self.last_step_id = None
@@ -89,7 +90,7 @@ class GPT:
             thread_id=self.thread_id, role="user", content=message
         )
         run = client.beta.threads.runs.create(
-            thread_id=self.thread_id, assistant_id=ASSISTANT_ID
+            thread_id=self.thread_id, assistant_id=self.assistant_id
         )
         self.last_messsage = omessage
         return run
@@ -154,7 +155,7 @@ class GPT:
 
 
 def main(args):
-    directory = args[0]
+    assistant_id = args[0]
     gpt = GPT()
     while True:
         chatLoop(gpt)
@@ -195,7 +196,6 @@ def _exec_action(action):
 def print_messages(messages):
     for message in messages:
         print(f"{bot} {message}")
-        print(message)
 
 
 if __name__ == "__main__":
