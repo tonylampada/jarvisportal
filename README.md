@@ -7,7 +7,7 @@ Here's one example of it in action
 (sorry, the video is kinda slow, watch it in 2.5x and use the keyboard arrows to go faster!)
 https://www.loom.com/share/9b6f2444c36747c98935e6250cbed9fb
 
-And this is another interaction example [conversations/write tests for gptexec.txt](conversations/write tests for gptexec.txt)
+And this is another interaction example [conversations/write tests for gptexec.txt](conversations/write%20tests%20for%20gptexec.txt)
 
 
 ## Running
