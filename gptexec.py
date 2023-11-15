@@ -10,10 +10,13 @@ import os
 client = OpenAI()
 
 ASSISTANT_ID = "asst_8AK25U8esouKTA56PLN7hqwa"
+usr = '\U0001F600'
+bot = '\U0001F916'
+cmd = '\U0001F47B'
 
 
 def action_runtest(path):
-    print(f"running test {path}...")
+    print(f"{cmd} running test {path}...")
     exit_status, output = _cmdexec(f"npm run jest -- {path}")
     print(output)
     print(f"test status {exit_status}")
@@ -21,32 +24,36 @@ def action_runtest(path):
 
 
 def action_getFile(path):
-    print(f"get file {path}")
+    print(f"{cmd} get file {path}")
     if not os.path.isfile(path):
         print("not found")
         return {"error": "file not found"}
     with open(path, "r") as file:
         result = file.read()
-    print(result)
     return {"content": result}
 
 
 def action_listDir(path):
-    print(f"list dir {path}")
+    print(f"{cmd} list dir {path}")
     if not os.path.isdir(path):
         print("not found")
         return {"error": "directory not found"}
     contents = os.listdir(path)
-    print(contents)
     return {"contents": contents}
 
 
 def action_updateFile(path, content):
+    print(f"{cmd} update file {path}")
     with open(path, "w") as file:
         file.write(content)
-    print(f"update file {path}")
-    print(content)
     return {"success": True}
+
+def action_exec(command):
+    print(f"{cmd} exec {command}")
+    exit_status, output = _cmdexec(command)
+    print(output)
+    print(f"command status {exit_status}")
+    return {"exit": exit_status, "output": output}
 
 
 def _cmdexec(cmd):
@@ -66,39 +73,39 @@ action_runners = {
     "getFile": action_getFile,
     "listDir": action_listDir,
     "updateFile": action_updateFile,
+    "exec": action_exec,
 }
 
 
 class GPT:
     def __init__(self):
-        self.thread = client.beta.threads.create()
+        self.thread_id = client.beta.threads.create().id
         self.last_messsage = None
         self.last_response = None
         self.last_step_id = None
 
     def send_chat(self, message):
         omessage = client.beta.threads.messages.create(
-            thread_id=self.thread.id, role="user", content=message
+            thread_id=self.thread_id, role="user", content=message
         )
         run = client.beta.threads.runs.create(
-            thread_id=self.thread.id, assistant_id=ASSISTANT_ID
+            thread_id=self.thread_id, assistant_id=ASSISTANT_ID
         )
         self.last_messsage = omessage
         return run
 
     def next_response(self, run):
-        print("waiting...")
         while run.status in ["queued", "in_progress"]:
             sleep(1)
             run = client.beta.threads.runs.retrieve(
-                thread_id=self.thread.id, run_id=run.id
+                thread_id=self.thread_id, run_id=run.id
             )
             # print(run.status)
         response = None
         if run.status == "completed":
             messages = list(
                 client.beta.threads.messages.list(
-                    thread_id=self.thread.id, before=self.last_messsage.id
+                    thread_id=self.thread_id, before=self.last_messsage.id
                 )
             )
             message = messages[0]
@@ -110,24 +117,30 @@ class GPT:
         elif run.status == "requires_action":
             steps = list(
                 client.beta.threads.runs.steps.list(
-                    thread_id=self.thread.id,
+                    thread_id=self.thread_id,
                     run_id=run.id,
                     order="asc",
                     after=self.last_step_id,
                 )
             )
             step = steps[0]
-            response = {"type": "action", "actions": step.step_details.tool_calls}
+            if step.step_details.type != 'message_creation': # still dont quite understand, but I know it doesn have too_calls
+                try:
+                    response = {"type": "action", "actions": step.step_details.tool_calls}
+                except:
+                    print(step)
+                    raise
             self.last_step_id = step.id
-        else:
-            print(run)
-            raise Exception(f"Run status is not valid {run.status}")
-
+        elif run.status == "failed":
+            message = "RUN FAILED."
+            if run.last_error:
+                message = f"{message} {run.last_error}"
+            print(message)
         return response, run
 
     def send_action_results(self, run, results):
         run = client.beta.threads.runs.submit_tool_outputs(
-            thread_id=self.thread.id,
+            thread_id=self.thread_id,
             run_id=run.id,
             tool_outputs=[
                 {"tool_call_id": r["id"], "output": json.dumps(r["output"])}
@@ -137,7 +150,7 @@ class GPT:
         return run
 
     def is_done(self, run):
-        return run.status == "completed"
+        return run.status in ["completed", "failed"]
 
 
 def main(args):
@@ -148,34 +161,40 @@ def main(args):
 
 
 def chatLoop(gpt):
-    userInput = input("Your Chat message: ")
+    userInput = input(f"{usr} User: ")
     run = gpt.send_chat(userInput)
     while not gpt.is_done(run):
+        print("waiting...")
         response, run = gpt.next_response(run)
-        if response["type"] == "action":
+        print("=========================================================")
+        if response and response["type"] == "action":
             action_results = exec_actions(response["actions"])
             run = gpt.send_action_results(run, action_results)
-        else:
+        elif response and response["type"] == "message":
             print_messages(response["messages"])
 
 
 def exec_actions(actions):
-    # print("got actions")
-    # print(actions)
-    return [
-        {
+    return [_exec_action(action) for action in actions]
+
+def _exec_action(action):
+    try:
+        return {
             "id": action["id"],
             "output": action_runners[action["function"]["name"]](
                 **json.loads(action["function"]["arguments"])
-            ),
+            )
         }
-        for action in actions
-    ]
-
+    except Exception as e:
+        print(f"Error: {e}")
+        return {
+            "id": action["id"],
+            "output": f"Error: {e}"
+        }
 
 def print_messages(messages):
     for message in messages:
-        print("response from GPT:")
+        print(f"{bot} {message}")
         print(message)
 
 
