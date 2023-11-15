@@ -3,3 +3,4 @@ dist/
 *.pyc
 __pycache__/
 build/
+.DS_Store
