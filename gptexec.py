@@ -180,17 +180,32 @@ def exec_actions(actions):
 
 def _exec_action(action):
     try:
+        arguments = json.loads(action["arguments"])
+    except Exception as e:
+        print(f"Error parsing json from GPT: {e}")
         return {
             "id": action["id"],
-            "output": action_runners[action["function"]["name"]](
-                **json.loads(action["function"]["arguments"])
-            )
+            "output": f"Error parsing json from GPT: {e}"
+        }
+    try:
+        function = action_runners[action["function"]["name"]]
+    except Exception as e:
+        print(f"Error finding function: {e}")
+        return {
+            "id": action["id"],
+            "output": f"Error finding function: {e}"
+        }
+    
+    try:
+        return {
+            "id": action["id"],
+            "output": function(**arguments)
         }
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error running command: {e}")
         return {
             "id": action["id"],
-            "output": f"Error: {e}"
+            "output": f"Error running command: {e}"
         }
 
 def print_messages(messages):
