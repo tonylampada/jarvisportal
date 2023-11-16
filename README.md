@@ -2,10 +2,9 @@
 
 Give GPT access to your terminal and make it do things for you.
 
-
 Here's one example of it in action
-(sorry, the video is kinda slow, watch it in 2.5x and use the keyboard arrows to go faster!)
-https://www.loom.com/share/9b6f2444c36747c98935e6250cbed9fb
+
+[![gptexec](https://img.youtube.com/vi/YkU4qNIB240/0.jpg)](https://www.youtube.com/watch?v=YkU4qNIB240)
 
 And this is another interaction example [conversations/write tests for gptexec.txt](conversations/write%20tests%20for%20gptexec.txt)
 
