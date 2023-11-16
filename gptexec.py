@@ -9,6 +9,7 @@ import os
 usr = '\U0001F600'
 bot = '\U0001F916'
 cmd = '\U0001F47B'
+mic = '\U0001F3A4'
 
 
 def action_runtest(path):
@@ -164,7 +165,12 @@ def chatLoop(gpt):
         userInput = listentomic.listen_and_transcribe()
         print(f"{usr} User: {userInput}")
     else:
-        userInput = input(f"{usr} User: ")
+        userInput = input(f"{usr} Type your message (or send an empty one to switch to voice input): \n")
+        if userInput.strip() == "":
+            print(f"{mic} Switching to voice input")
+            import listentomic
+            userInput = listentomic.listen_and_transcribe()
+            print(f"{usr} User: {userInput}")
     run = gpt.send_chat(userInput)
     while not gpt.is_done(run):
         print("waiting...")
