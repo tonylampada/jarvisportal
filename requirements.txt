@@ -1,2 +1,5 @@
 openai==1.2.4
 pytest==7.4.3
+sounddevice==0.4.6
+numpy==1.26.2
+scipy==1.11.3

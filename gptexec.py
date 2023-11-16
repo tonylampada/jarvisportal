@@ -4,7 +4,6 @@ from openai.types.beta.threads.runs.run_step import RunStep
 from time import sleep
 import json
 import subprocess
-import shlex
 import os
 
 usr = '\U0001F600'
@@ -159,9 +158,13 @@ def main(args):
     while True:
         chatLoop(gpt)
 
-
 def chatLoop(gpt):
-    userInput = input(f"{usr} User: ")
+    if os.getenv("GPTEXEC_AUDIO") == "1":
+        import listentomic
+        userInput = listentomic.listen_and_transcribe()
+        print(f"{usr} User: {userInput}")
+    else:
+        userInput = input(f"{usr} User: ")
     run = gpt.send_chat(userInput)
     while not gpt.is_done(run):
         print("waiting...")
