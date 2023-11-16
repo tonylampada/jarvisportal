@@ -7,6 +7,10 @@ Here's one example of it in action
 
 [![gptexec](https://img.youtube.com/vi/YkU4qNIB240/0.jpg)](https://www.youtube.com/watch?v=YkU4qNIB240)
 
+And with voice
+
+[![gptexec](https://img.youtube.com/vi/c2cLyeEdS98/0.jpg)](https://www.youtube.com/watch?v=c2cLyeEdS98)
+
 And this is another interaction example [conversations/write tests for gptexec.txt](conversations/write%20tests%20for%20gptexec.txt)
 
 
