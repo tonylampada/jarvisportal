@@ -159,7 +159,7 @@ def main(args):
         chatLoop(gpt)
 
 def chatLoop(gpt):
-    if os.getenv("GPTEXEC_AUDIO") == "1":
+    if os.getenv("GPTEXEC_VOICE") == "1":
         import listentomic
         userInput = listentomic.listen_and_transcribe()
         print(f"{usr} User: {userInput}")
