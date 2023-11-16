@@ -1,6 +1,7 @@
 # gptexec
 
 Give GPT access to your terminal and make it do things for you.
+(You can type or use voice with it)
 
 Here's one example of it in action
 
@@ -12,7 +13,7 @@ And this is another interaction example [conversations/write tests for gptexec.t
 ## Running
 
 ```bash
-pip install openai
+pip install openai # if you want to use voice, just install everything in requirements.txt
 export OPENAI_API_KEY=your-openai-key
 ```
 
@@ -87,6 +88,12 @@ Now the assistant has an id, and now you can run gptexec like
 
 ```bash
 python gptexec.py <YOUR_ASSISNTANT_ID>
+```
+
+or to use voice
+
+```bash
+GPTEXEC_VOICE=1 python gptexec.py <YOUR_ASSISNTANT_ID>
 ```
 
 
