@@ -7,8 +7,6 @@ import subprocess
 import shlex
 import os
 
-client = OpenAI()
-
 usr = '\U0001F600'
 bot = '\U0001F916'
 cmd = '\U0001F47B'
@@ -79,17 +77,18 @@ action_runners = {
 
 class GPT:
     def __init__(self, assistant_id):
-        self.thread_id = client.beta.threads.create().id
+        self.client = OpenAI()
+        self.thread_id = self.client.beta.threads.create().id
         self.assistant_id = assistant_id
         self.last_messsage = None
         self.last_response = None
         self.last_step_id = None
 
     def send_chat(self, message):
-        omessage = client.beta.threads.messages.create(
+        omessage = self.client.beta.threads.messages.create(
             thread_id=self.thread_id, role="user", content=message
         )
-        run = client.beta.threads.runs.create(
+        run = self.client.beta.threads.runs.create(
             thread_id=self.thread_id, assistant_id=self.assistant_id
         )
         self.last_messsage = omessage
@@ -98,14 +97,14 @@ class GPT:
     def next_response(self, run):
         while run.status in ["queued", "in_progress"]:
             sleep(1)
-            run = client.beta.threads.runs.retrieve(
+            run = self.client.beta.threads.runs.retrieve(
                 thread_id=self.thread_id, run_id=run.id
             )
             # print(run.status)
         response = None
         if run.status == "completed":
             messages = list(
-                client.beta.threads.messages.list(
+                self.client.beta.threads.messages.list(
                     thread_id=self.thread_id, before=self.last_messsage.id
                 )
             )
@@ -117,7 +116,7 @@ class GPT:
             self.last_response = message
         elif run.status == "requires_action":
             steps = list(
-                client.beta.threads.runs.steps.list(
+                self.client.beta.threads.runs.steps.list(
                     thread_id=self.thread_id,
                     run_id=run.id,
                     order="asc",
@@ -140,7 +139,7 @@ class GPT:
         return response, run
 
     def send_action_results(self, run, results):
-        run = client.beta.threads.runs.submit_tool_outputs(
+        run = self.client.beta.threads.runs.submit_tool_outputs(
             thread_id=self.thread_id,
             run_id=run.id,
             tool_outputs=[
@@ -180,7 +179,7 @@ def exec_actions(actions):
 
 def _exec_action(action):
     try:
-        arguments = json.loads(action["arguments"])
+        arguments = json.loads(action["function"]["arguments"])
     except Exception as e:
         print(f"Error parsing json from GPT: {e}")
         return {
