@@ -49,17 +49,17 @@ Now, the two functions need to be exactly like this:
 ```
 {
   "name": "updateFile",
-  "description": "Atualiza o conteudo de um arquivo",
+  "description": "Updates the contents of a file",
   "parameters": {
     "type": "object",
     "properties": {
       "path": {
         "type": "string",
-        "description": "Caminho do arquivo"
+        "description": "file path."
       },
       "content": {
         "type": "string",
-        "description": "Caminho do arquivo"
+        "description": "file content. Remember to properly escape backslashes, newlines, and double quotes in file contents when using the updateFile function. Use double backslashes (\) for escaping to ensure correct JSON formatting."
       }
     },
     "required": [
@@ -72,13 +72,13 @@ Now, the two functions need to be exactly like this:
 ```
 {
   "name": "exec",
-  "description": "Executa um comando shell",
+  "description": "Executes a shell command",
   "parameters": {
     "type": "object",
     "properties": {
       "command": {
         "type": "string",
-        "description": "Comando a ser executado"
+        "description": "Command to be executed"
       }
     },
     "required": [

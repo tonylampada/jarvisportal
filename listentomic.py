@@ -55,6 +55,7 @@ def detect_silence_and_save(sample_rate=SAMPLE_RATE, chunk_size=CHUNK_SIZE, outp
                         silence_duration = 0
                         sound_duration = 0
                         recorded_frames = []
+                        state = "waiting"
                         continue
         audio_data = np.concatenate(recorded_frames, axis=0)
         wf.writeframes((audio_data * 32767).astype(np.int16).tobytes())

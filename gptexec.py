@@ -190,10 +190,11 @@ def _exec_action(action):
     try:
         arguments = json.loads(action["function"]["arguments"])
     except Exception as e:
-        print(f"Error parsing json from GPT: {e}")
+        errmsg = f"Error parsing json from GPT: {e} - arguments={action['function']['arguments']}"
+        print(errmsg)
         return {
             "id": action["id"],
-            "output": f"Error parsing json from GPT: {e}"
+            "output": errmsg
         }
     try:
         function = action_runners[action["function"]["name"]]
