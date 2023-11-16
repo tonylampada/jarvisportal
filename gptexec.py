@@ -57,7 +57,8 @@ def action_exec(command):
 
 def _cmdexec(cmd):
     process = subprocess.Popen(
-        shlex.split(cmd),
+        cmd,
+        shell=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         env=os.environ,
