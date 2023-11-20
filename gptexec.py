@@ -45,6 +45,7 @@ def action_updateFile(path, content):
         file.write(content)
     return {"success": True}
 
+
 def action_exec(command):
     print(f"{cmd} exec {command}")
     exit_status, output = _cmdexec(command)
@@ -188,32 +189,32 @@ def exec_actions(actions):
 
 def _exec_action(action):
     try:
-        arguments = json.loads(action["function"]["arguments"])
+        arguments = json.loads(action.function.arguments)
     except Exception as e:
-        errmsg = f"Error parsing json from GPT: {e} - arguments={action['function']['arguments']}"
+        errmsg = f"Error parsing json from GPT: {e} - arguments={action.function.arguments}"
         print(errmsg)
         return {
-            "id": action["id"],
+            "id": action.id,
             "output": errmsg
         }
     try:
-        function = action_runners[action["function"]["name"]]
+        function = action_runners[action.function.name]
     except Exception as e:
         print(f"Error finding function: {e}")
         return {
-            "id": action["id"],
+            "id": action.id,
             "output": f"Error finding function: {e}"
         }
     
     try:
         return {
-            "id": action["id"],
+            "id": action.id,
             "output": function(**arguments)
         }
     except Exception as e:
         print(f"Error running command: {e}")
         return {
-            "id": action["id"],
+            "id": action.id,
             "output": f"Error running command: {e}"
         }
 
