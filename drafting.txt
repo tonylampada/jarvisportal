@@ -1,0 +1,31 @@
+{
+  "name": "updateFile",
+  "description": "Edits a file based on text anchors. This function replaces text between specified start and end anchors with new content. Anchors are specific words, phrases, or characters identified in the file. In other words, the string '${start_anchor}...${end_anchor}' will be replaced with '${content}'.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "path": {
+        "type": "string",
+        "description": "File path."
+      },
+      "start_anchor": {
+        "type": "string",
+        "description": "The anchor text marking the beginning of the text to be replaced. The function will start replacing text starting on this anchor. The anchor itself will also be replaced."
+      },
+      "end_anchor": {
+        "type": "string",
+        "description": "The anchor text marking the end of the text to be replaced. The function will stop replacing text at the end of this anchor. The anchor itself will also be replaced."
+      },
+      "content": {
+        "type": "string",
+        "description": "The new content to replace between the start and end anchors."
+      }
+    },
+    "required": [
+      "path",
+      "start_anchor",
+      "end_anchor",
+      "content"
+    ]
+  }
+}
