@@ -1,6 +1,6 @@
 from local_llm_function_calling import Generator
 from local_llm_function_calling.model.llama import LlamaModel
-from local_llm_function_calling.prompter
+from local_llm_function_calling.prompter import CompletionModelPrompter
 
 functions = [
     {
@@ -18,7 +18,21 @@ functions = [
             },
             "required": ["location"],
         },
-    }
+    },
+    {
+        "name": "say",
+        "description": "Display a message to the user",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "description": "The message to display",
+                }
+            },
+            "required": ["message"],
+        },
+    },
 ]
 
 print("start")
@@ -27,8 +41,10 @@ generator = Generator(
     LlamaModel(
         "codellama-13b-instruct.Q5_0.gguf"
     ),
+    # prompter=CompletionModelPrompter(),
 )
 print("generating...")
 
 function_call = generator.generate("What is the weather like today in Brooklyn?")
 print(function_call)
+print("cabou")
