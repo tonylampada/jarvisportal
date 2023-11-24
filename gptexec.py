@@ -35,7 +35,7 @@ def chatLoop(gpt):
         response, run = gpt.next_response(run)
         print("=========================================================")
         if response and response["type"] == "action":
-            action_results = exec_actions(response["actions"])
+            action_results = exec_actions(response["actions"], ask=True)
             run = gpt.send_action_results(run, action_results)
         elif response and response["type"] == "message":
             print_messages(response["messages"])

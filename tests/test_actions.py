@@ -2,7 +2,7 @@ import pytest
 import os
 import sys
 import subprocess
-from actions import action_exec, action_createFile, action_updateFile_anchors, action_updateFile_lines, set_cli_input
+from actions import action_exec, action_createFile, action_updateFile_anchors, action_updateFile_lines, action_updateFile_replace, set_cli_input
 
 @pytest.fixture(scope='module', autouse=True)
 def cli_input_override():
@@ -30,7 +30,7 @@ def test_action_createFile():
     assert content == test_content
     os.remove(test_path)
 
-def test_action_updateFile():
+def test_action_updateFile_lines():
     original_content = '''hello
 
 I am a file
@@ -56,7 +56,7 @@ Makes me happy
     assert content == expected_content
     os.remove(filepath)
 
-def test_action_updateFileWithAnchors():
+def test_action_updateFile_anchors():
     original_content = '''hello
 
 I am a file
@@ -92,3 +92,38 @@ Makes me happy
 '''
     assert content == expected_content, "Content does not match expected content"
     os.remove(filepath)
+
+def test_action_updateFile_replace():
+    original_content = '''hello
+
+I am a file
+I have content
+
+Being a file
+Makes me happy
+'''
+    filepath = '/tmp/testfile_update.txt'
+    findtext = 'I am a file\nI have content'
+    replacetext = 'I am a good file\nI have good content'
+
+    # Create the file with original content
+    os.remove(filepath) if os.path.exists(filepath) else None
+    with open(filepath, 'w') as file:
+        file.write(original_content)
+
+    action_updateFile_replace(filepath, findtext, replacetext)
+
+    with open(filepath, 'r') as file:
+        content = file.read()
+
+    expected_content = '''hello
+
+I am a good file
+I have good content
+
+Being a file
+Makes me happy
+'''
+    assert content == expected_content, "Content does not match expected content"
+    os.remove(filepath)
+    
