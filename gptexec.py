@@ -7,7 +7,11 @@ usr = '\U0001F600'
 bot = '\U0001F916'
 mic = '\U0001F3A4'
 
-def main(args):
+def main():
+    args = sys.argv[1:]
+    if len(args) != 1:
+        print("Usage: gptexec.py <assistant_id>")
+        exit(1)
     assistant_id = args[0]
     gpt = GPT(assistant_id)
     gpt.cancel_pending_runs()
@@ -46,4 +50,4 @@ def print_messages(messages):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()

@@ -71,5 +71,8 @@ def register_device(user_devicekey, device_name, device_description):
     return device_key
 
 
-if __name__ == "__main__":
+def main():
     asyncio.get_event_loop().run_until_complete(test_websocket())
+
+if __name__ == "__main__":
+    main()
