@@ -9,7 +9,7 @@ pip install jarvisportal
 ```
 
 # Running
-Get a devicekey from [Jarvis GPT](https://chat.openai.com/g/g-WnOhmZn8y-jarvis) and register your device with 
+Get a devicekey from [Jarvis GPT](https://chat.openai.com/g/g-WnOhmZn8y-jarvis) and register your device by running it in your terminal 
 
 ```bash
 jarvisportal
