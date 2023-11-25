@@ -5,7 +5,7 @@ with open("requirements.txt", "r") as fh:
 
 setup(
     name='jarvisportal',
-    version='1.0.0',
+    version='1.0.1',
     description='Give Chat GPT access to your terminal',
     author='Tony Lampada',
     py_modules=['jarvisportal'],
@@ -13,8 +13,8 @@ setup(
     install_requires=install_requires,
     entry_points={
         "console_scripts": [
-            "jarvisportal=jarvisportal:main",
-            "gptexec=gptexec:main",
+            "jarvisportal=jarvisportal.jarvisportal:main",
+            "gptexec=jarvisportal.gptexec:main",
         ],
     },
     python_requires=">=3.8",

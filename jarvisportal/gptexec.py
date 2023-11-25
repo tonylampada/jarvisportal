@@ -1,7 +1,7 @@
 import sys
 import os
-from gpt import GPT
-from actions import exec_actions
+from jarvisportal.gpt import GPT
+from jarvisportal.actions import exec_actions
 
 usr = '\U0001F600'
 bot = '\U0001F916'
@@ -23,14 +23,14 @@ def main():
 
 def chatLoop(gpt):
     if os.getenv("GPTEXEC_VOICE") == "1":
-        import listentomic
+        import jarvisportal.listentomic as listentomic
         userInput = listentomic.listen_and_transcribe(detectsilence=True)
         print(f"{usr} User: {userInput}")
     else:
         userInput = input(f"{usr} Type your message (or send an empty one to switch to voice input): \n")
         if userInput.strip() == "":
             print(f"{mic} Switching to voice input")
-            import listentomic
+            import jarvisportal.listentomic as listentomic
             userInput = listentomic.listen_and_transcribe(detectsilence=False)
             print(f"{usr} User: {userInput}")
     run = gpt.send_chat(userInput)

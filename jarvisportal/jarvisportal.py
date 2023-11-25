@@ -1,7 +1,7 @@
 import asyncio
 import websockets
 import json
-import actions
+import jarvisportal.actions as actions
 from random import randint
 import os
 import requests

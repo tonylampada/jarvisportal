@@ -2,7 +2,7 @@ import pytest
 import os
 import sys
 import subprocess
-from actions import action_exec, action_createFile, action_updateFile_anchors, action_updateFile_lines, action_updateFile_replace, set_cli_input
+from jarvisportal.actions import action_exec, action_createFile, action_updateFile_anchors, action_updateFile_lines, action_updateFile_replace, set_cli_input
 
 @pytest.fixture(scope='module', autouse=True)
 def cli_input_override():
