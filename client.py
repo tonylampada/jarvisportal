@@ -5,6 +5,7 @@ import actions
 from random import randint
 import os
 import requests
+from websockets.exceptions import ConnectionClosedError
 
 BASE_DOMAIN = "s://gptexec.evolutio.io"
 # BASE_DOMAIN = "://localhost:8000"
@@ -30,21 +31,26 @@ async def test_websocket():
         with open(configfilepath, "r") as file:
             config = json.load(file)
             device_key = config["device_key"]
-    uri = f"ws{BASE_DOMAIN}/ws"  # Substitua pela URL do seu WebSocket
-    async with websockets.connect(uri) as websocket:
-        await websocket.send(device_key)
-        print("Connected. waiting for commands...")
-        while True:
-            msg = json.loads(await websocket.recv())
-            action = {
-                "id": randint(0, 1000000),
-                "function": {
-                    "name": msg["function"],
-                    "arguments": msg["arguments"]
-                }
-            }
-            actionresult = actions.exec_action(action)
-            await websocket.send(json.dumps(actionresult))
+    uri = f"ws{BASE_DOMAIN}/ws"
+    while True:
+        try:
+            async with websockets.connect(uri) as websocket:
+                await websocket.send(device_key)
+                print("Connected. waiting for commands...")
+                while True:
+                    msg = json.loads(await websocket.recv())
+                    action = {
+                        "id": randint(0, 1000000),
+                        "function": {
+                            "name": msg["function"],
+                            "arguments": msg["arguments"]
+                        }
+                    }
+                    actionresult = actions.exec_action(action)
+                    await websocket.send(json.dumps(actionresult))
+        except  ConnectionClosedError:
+            print("Connection closed. Reconnecting...")
+            await asyncio.sleep(5)
 
 def register_device(user_devicekey, device_name, device_description):
     uri = f"http{BASE_DOMAIN}/api/registerdevice"
