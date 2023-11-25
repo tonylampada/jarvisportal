@@ -24,6 +24,7 @@ def detect_silence_and_save(sample_rate=SAMPLE_RATE, chunk_size=CHUNK_SIZE, outp
         wf.setnchannels(1)
         wf.setsampwidth(2)  # 2 bytes for 'int16' type
         wf.setframerate(sample_rate)
+        
 
         sound_duration = 0
         silence_duration = 0
@@ -66,6 +67,8 @@ def listen_until_enter_and_save(sample_rate=SAMPLE_RATE, chunk_size=CHUNK_SIZE, 
 
     def record():
         with sd.InputStream(samplerate=sample_rate, channels=1) as stream, wave.open(output_file, 'wb') as wf:
+            devicename = sd.query_devices(stream.device)['name']
+            print(f'Please start speaking now on [{devicename}]... (hit ENTER to send)')
             wf.setnchannels(1)
             wf.setsampwidth(2)  # 2 bytes for 'int16' type
             wf.setframerate(sample_rate)
@@ -83,7 +86,6 @@ def listen_until_enter_and_save(sample_rate=SAMPLE_RATE, chunk_size=CHUNK_SIZE, 
     record_thread = threading.Thread(target=record)
     record_thread.start()
 
-    print('Please start speaking now... (hit ENTER to send)')
     input()
     stop_recording.set()
     record_thread.join()
