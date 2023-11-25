@@ -5,14 +5,17 @@ This is the client for the [Jarvis GPT](https://chat.openai.com/g/g-WnOhmZn8y-ja
 # Installation:
 
 ```bash
-pip install -r requirements.txt
+pip install jarvisportal
 ```
 
 # Running
 Get a devicekey from [Jarvis GPT](https://chat.openai.com/g/g-WnOhmZn8y-jarvis) and register your device with 
 
 ```bash
-python client.py
+jarvisportal
 ```
+
+# Another way
+Alternatively, you can have GPT in your terminal with [gptexec](./README-gptexec.md)
 
 Leave it running on a terminal window.
