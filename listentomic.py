@@ -1,6 +1,7 @@
 import sounddevice as sd
 import numpy as np
 import wave
+import threading
 import openai
 client = openai.OpenAI()
 
@@ -60,9 +61,39 @@ def detect_silence_and_save(sample_rate=SAMPLE_RATE, chunk_size=CHUNK_SIZE, outp
         audio_data = np.concatenate(recorded_frames, axis=0)
         wf.writeframes((audio_data * 32767).astype(np.int16).tobytes())
 
-def listen_and_transcribe():
+def listen_until_enter_and_save(sample_rate=SAMPLE_RATE, chunk_size=CHUNK_SIZE, output_file='output.wav'):
+    stop_recording = threading.Event()
+
+    def record():
+        with sd.InputStream(samplerate=sample_rate, channels=1) as stream, wave.open(output_file, 'wb') as wf:
+            wf.setnchannels(1)
+            wf.setsampwidth(2)  # 2 bytes for 'int16' type
+            wf.setframerate(sample_rate)
+
+            recorded_frames = []
+            while not stop_recording.is_set():
+                data, _ = stream.read(chunk_size)
+                volume = np.linalg.norm(data) * 10
+                print(f"volume: {int(volume)}", end="\r")
+                recorded_frames.append(data)
+
+            audio_data = np.concatenate(recorded_frames, axis=0)
+            wf.writeframes((audio_data * 32767).astype(np.int16).tobytes())
+
+    record_thread = threading.Thread(target=record)
+    record_thread.start()
+
+    print('Please start speaking now... (hit ENTER to send)')
+    input()
+    stop_recording.set()
+    record_thread.join()
+
+def listen_and_transcribe(detectsilence=False):
     filename = '/tmp/gptexecsound.wav'
-    detect_silence_and_save(output_file=filename)
+    if detectsilence:
+        detect_silence_and_save(output_file=filename)
+    else:
+        listen_until_enter_and_save(output_file=filename)
     with open(filename, 'rb') as audio_data:
         transcription = client.audio.transcriptions.create(model="whisper-1", file=audio_data)
     return transcription.text
