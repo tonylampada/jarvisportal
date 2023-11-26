@@ -7,7 +7,7 @@ import os
 import requests
 from websockets.exceptions import ConnectionClosedError
 
-BASE_DOMAIN = "s://gptexec.evolutio.io"
+BASE_DOMAIN = "s://jarvis.evolutio.io"
 # BASE_DOMAIN = "://localhost:8000"
 
 async def test_websocket():
