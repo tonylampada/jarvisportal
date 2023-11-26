@@ -72,7 +72,13 @@ def register_device(user_devicekey, device_name, device_description):
 
 
 def main():
-    asyncio.get_event_loop().run_until_complete(test_websocket())
+    try:
+        asyncio.get_event_loop().run_until_complete(test_websocket())
+    except KeyboardInterrupt:
+        print("\n====================================")
+        print("Thank you for using Jarvis. Come back soon. ;)")
+        print("====================================")
+
 
 if __name__ == "__main__":
     main()

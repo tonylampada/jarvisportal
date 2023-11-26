@@ -19,7 +19,9 @@ def main():
         while True:
             chatLoop(gpt)
     except KeyboardInterrupt:
-        print("Exiting...")
+        print("\n====================================")
+        print("Thank you for using Jarvis. Come back soon. ;)")
+        print("====================================")
 
 def chatLoop(gpt):
     if os.getenv("GPTEXEC_VOICE") == "1":
