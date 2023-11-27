@@ -1,0 +1,44 @@
+~/work/solo/gptexec (wip) $ python vaifunctionary.py
+https://0e39-35-240-133-251.ngrok-free.app/v1
+/Users/tony/work/solo/gptexec/vaifunctionary.py:28: DeprecatedWarning: __init__ is deprecated as of 1.0.0 and will be removed in 1.1.0. Use `Chat` instead.
+  chat = Conversation(model="meetkai/functionary-7b-v1.4")
+<chatlab.views.argument_buffer.ArgumentBuffer object at 0x111e22f90>
+<chatlab.views.argument_buffer.ArgumentBuffer object at 0x111e22f90>
+<chatlab.views.argument_buffer.ArgumentBuffer object at 0x111e22f90>
+<chatlab.views.argument_buffer.ArgumentBuffer object at 0x111e22f90>
+<chatlab.views.argument_buffer.ArgumentBuffer object at 0x111e22f90>
+<chatlab.views.argument_buffer.ArgumentBuffer object at 0x111e22f90>
+<chatlab.views.argument_buffer.ArgumentBuffer object at 0x111e22f90>
+<chatlab.views.argument_buffer.ArgumentBuffer object at 0x111e22f90>
+<chatlab.views.argument_buffer.ArgumentBuffer object at 0x111e22f90>
+<chatlab.views.argument_buffer.ArgumentBuffer object at 0x111e22f90>
+<chatlab.views.argument_buffer.ArgumentBuffer object at 0x111e22f90>
+<chatlab.views.argument_buffer.ArgumentBuffer object at 0x111e22f90>
+<chatlab.display.ChatFunctionCall object at 0x111a08590>
+<chatlab.display.ChatFunctionCall object at 0x111a08590>
+<chatlab.display.ChatFunctionCall object at 0x111a08590>
+ 
+ 
+The
+The price
+The price of
+The price of the
+The price of the car
+The price of the car named
+The price of the car named T
+The price of the car named Tang
+The price of the car named Tang is
+The price of the car named Tang is $
+The price of the car named Tang is $2
+The price of the car named Tang is $20
+The price of the car named Tang is $200
+The price of the car named Tang is $2000
+The price of the car named Tang is $20000
+The price of the car named Tang is $20000.
+[sent prompt]
+USER: what is the price of the car named Tang?
+ASSISTANT: call function: get_car_price, arguments:
+{"car_name": "Tang"}
+FUNCTION: {'price': {'price': '$20000'}}
+ASSISTANT: The price of the car named Tang is $20000.
+~/work/solo/gptexec (wip) $ 
