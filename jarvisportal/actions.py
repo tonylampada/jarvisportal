@@ -20,6 +20,7 @@ class ActionCreateFile():
         :param path: file path
         :param content: file content. Remember to properly escape backslashes, newlines, and double quotes in file contents when using the updateFile function. Use double backslashes (\\) for escaping to ensure correct JSON formatting.
         """
+        path = os.path.expanduser(path)
         parentdir = os.path.dirname(path) or "."
         if not os.path.exists(parentdir):
             print(f"ERROR: parent directory {parentdir} does not exist")
