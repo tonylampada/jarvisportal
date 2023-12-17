@@ -152,8 +152,8 @@ def exec_action(action, ask=False):
             errmsg = f"Error parsing json from GPT: {e} - arguments={action['function']}"
             print(errmsg)
             return {
-                "id": action["id"],
-                "output": errmsg
+                # "id": action.get("id"),
+                "error": errmsg
             }
     arguments = action["function"]["arguments"]
     try:
@@ -161,8 +161,8 @@ def exec_action(action, ask=False):
     except Exception as e:
         print(f"Error finding function: {e}")
         return {
-            "id": action["id"],
-            "output": f"Error finding function: {e}"
+            # "id": action.get("id"),
+            "error": f"Error finding function: {e}"
         }
     try:
         print("debug")
@@ -170,24 +170,55 @@ def exec_action(action, ask=False):
         runaction.prompt(**arguments)
     except Exception as e:
         return {
-            "id": action["id"],
-            "output": f"Error running command: {e}"
+            # "id": action.get("id"),
+            "error": f"Error executing action: {e}"
         }
     if ask:
         answer = input("Run? [Y/n] ").lower()
         if answer == "n":
             return {
-                "id": action["id"],
-                "output": ""
+                # "id": action.get("id"),
+                "error": "denied by user"
             }
     try:
-        return {
-            "id": action["id"],
-            "output": runaction.run(**arguments)
-        }
+        result = runaction.run(**arguments)
+        return result
+        # return {
+            # "id": action.get("id"),
+        #     "output": result
+        # }
     except Exception as e:
         print(f"Error running command: {e}")
         return {
-            "id": action["id"],
-            "output": f"Error running command: {e}"
+            # "id": action.get("id"),
+            "error": f"Error running command: {e}"
         }
+
+definitions = [
+    {
+        "name": "createFile",
+        "description": "Creates a file",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "path": {"type": "string", "description": "file path."},
+                "content": {
+                    "type": "string",
+                    "description": "file content. Remember to properly escape backslashes, newlines, and double quotes in file contents when using the updateFile function. Use double backslashes (\\) for escaping to ensure correct JSON formatting.",
+                },
+            },
+            "required": ["path", "content"],
+        },
+    },
+    {
+        "name": "exec",
+        "description": "Executes a shell command",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "command": {"type": "string", "description": "Command to be executed"}
+            },
+            "required": ["command"],
+        },
+    },
+]

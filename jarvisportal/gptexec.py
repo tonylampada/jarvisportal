@@ -1,7 +1,8 @@
 import sys
 import os
 from jarvisportal.gpt import GPT
-from jarvisportal.actions import exec_actions
+from jarvisportal.llamaapichat import Chat as LlamaApiChat
+from jarvisportal.actions import exec_actions, definitions
 
 usr = '\U0001F600'
 bot = '\U0001F916'
@@ -9,21 +10,24 @@ mic = '\U0001F3A4'
 
 def main():
     args = sys.argv[1:]
-    if len(args) != 1:
-        print("Usage: gptexec.py <assistant_id>")
-        exit(1)
-    assistant_id = args[0]
-    gpt = GPT(assistant_id)
-    gpt.cancel_pending_runs()
+    engine = os.getenv("CHAT_ENGINE", "gpt")
+    if engine == "gpt":
+        if len(args) != 1:
+            print("Usage: gptexec.py <assistant_id>")
+            exit(1)
+        assistant_id = args[0]
+        bot = GPT(assistant_id)
+    elif engine == "llamaapi":
+        bot = LlamaApiChat(definitions)
     try:
         while True:
-            chatLoop(gpt)
+            chatLoop(bot)
     except KeyboardInterrupt:
         print("\n====================================")
-        print("Thank you for using Jarvis. Come back soon. ;)")
+        print("Thank you for using GPTExec. Come back soon. ;)")
         print("====================================")
 
-def chatLoop(gpt):
+def _user_input():
     if os.getenv("GPTEXEC_VOICE") == "1":
         import jarvisportal.listentomic as listentomic
         userInput = listentomic.listen_and_transcribe(detectsilence=True)
@@ -35,16 +39,22 @@ def chatLoop(gpt):
             import jarvisportal.listentomic as listentomic
             userInput = listentomic.listen_and_transcribe(detectsilence=False)
             print(f"{usr} User: {userInput}")
-    run = gpt.send_chat(userInput)
-    while not gpt.is_done(run):
+    return userInput    
+
+def chatLoop(bot):
+    userInput = _user_input()
+    print("waiting...")
+    bot.send_chat(userInput)
+    answer = None
+    while answer is None or not answer.get('is_final'):
         print("waiting...")
-        response, run = gpt.next_response(run)
+        answer = bot.next_answer()
         print("=========================================================")
-        if response and response["type"] == "action":
-            action_results = exec_actions(response["actions"], ask=True)
-            run = gpt.send_action_results(run, action_results)
-        elif response and response["type"] == "message":
-            print_messages(response["messages"])
+        if answer["type"] == "action":
+            action_results = exec_actions(answer["actions"], ask=True)
+            bot.send_action_results(answer["actions"], action_results)
+        elif answer["type"] == "message":
+            print_messages(answer["messages"])
 
 def print_messages(messages):
     for message in messages:
