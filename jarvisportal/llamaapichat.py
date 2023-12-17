@@ -56,7 +56,7 @@ class Chat:
             }
         return answer
 
-    def send_action_results(self, results):
+    def send_action_results(self, actions, results):
         self.messages.append({"role": "user", "content": json.dumps(results[0])})
         self.last_response = self._send()
 
