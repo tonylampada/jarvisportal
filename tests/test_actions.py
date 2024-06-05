@@ -2,7 +2,9 @@ import pytest
 import os
 import sys
 import subprocess
-from jarvisportal.actions import action_exec, action_createFile, action_updateFile_anchors, action_updateFile_lines, action_updateFile_replace, set_cli_input
+# from jarvisportal.actions import action_exec, action_createFile, action_updateFile_anchors, action_updateFile_lines, action_updateFile_replace, action_updateFile_diff, set_cli_input
+from jarvisportal.actions import set_cli_input, ActionExec, ActionCreateFile, ActionUpdateFileAnchors, ActionUpdateFileLines, ActionUpdateFileReplace
+#, ActionUpdateFileDiff
 
 @pytest.fixture(scope='module', autouse=True)
 def cli_input_override():
@@ -13,18 +15,18 @@ def cli_input_override():
 
 
 def test_action_exec():
-    result = action_exec('echo "Hello, World!"')
+    result = ActionExec().run('echo "Hello, World!"')
     assert 'Hello, World!' in result['output']
 
 def test_double_echo():
-    result = action_exec('echo hello && echo goodbye')
+    result = ActionExec().run('echo hello && echo goodbye')
     assert 'hello\n' in result['output']
     assert 'goodbye\n' in result['output']
 
 def test_action_createFile():
     test_content = 'Test content'
     test_path = '/tmp/testfile.txt'
-    action_createFile(test_path, test_content)
+    ActionCreateFile().run(test_path, test_content)
     with open(test_path, 'r') as file:
         content = file.read()
     assert content == test_content
@@ -41,8 +43,8 @@ Makes me happy
 '''
     filepath = '/tmp/testfile_update.txt'
     os.remove(filepath) if os.path.exists(filepath) else None
-    action_createFile(filepath, original_content)
-    action_updateFile_lines(filepath, 2, 4, 'I am a good file\nI have good content\n')
+    ActionCreateFile().run(filepath, original_content)
+    ActionUpdateFileLines().run(filepath, 2, 4, 'I am a good file\nI have good content\n')
     with open(filepath, 'r') as file:
         content = file.read()
     expected_content = '''hello
@@ -76,7 +78,7 @@ Makes me happy
         file.write(original_content)
 
     # Update the file using anchors
-    action_updateFile_anchors(filepath, start_anchor, end_anchor, new_content)
+    ActionUpdateFileAnchors().run(filepath, start_anchor, end_anchor, new_content)
 
     # Read the updated content
     with open(filepath, 'r') as file:
@@ -111,7 +113,7 @@ Makes me happy
     with open(filepath, 'w') as file:
         file.write(original_content)
 
-    action_updateFile_replace(filepath, findtext, replacetext)
+    ActionUpdateFileReplace().run(filepath, findtext, replacetext)
 
     with open(filepath, 'r') as file:
         content = file.read()
@@ -126,4 +128,45 @@ Makes me happy
 '''
     assert content == expected_content, "Content does not match expected content"
     os.remove(filepath)
+
+
+# def test_action_updateFile_diff():
+#     original_content = '''hello
+
+# I am a file
+# I have content
+
+# Being a file
+# Makes me happy
+# '''
+#     filepath = '/tmp/testfile_update_diff.txt'
+#     diff = ''' I am a file
+# -I have content
+# +I have good content
+ 
+#  Being a file
+# -Makes me happy
+# +Makes me very happy
+# '''
+
+#     # Create the file with original content
+#     os.remove(filepath) if os.path.exists(filepath) else None
+#     with open(filepath, 'w') as file:
+#         file.write(original_content)
+
+#     action_updateFile_diff(filepath, 3, diff)
+
+#     with open(filepath, 'r') as file:
+#         content = file.read()
+
+#     expected_content = '''hello
+
+# I am a file
+# I have good content
+
+# Being a file
+# Makes me very happy
+# '''
+#     assert content == expected_content, "Content does not match expected content"
+#     os.remove(filepath)
     

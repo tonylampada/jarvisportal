@@ -32,7 +32,7 @@ class ActionCreateFile():
             file.write(content)
         return {"success": True}
 
-def ActionUpdateFileLines():
+class ActionUpdateFileLines():
     def prompt(self, path: str, line_start: int, line_end: int, content: str):
         print(f"{cmd} update file {path} from line {line_start} to {line_end}")
 
