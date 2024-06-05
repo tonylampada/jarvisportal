@@ -178,6 +178,7 @@ ACTIONS = {
     "updateFile_lines": ActionUpdateFileLines(),
     "updateFile_anchors": ActionUpdateFileAnchors(),
     "updateFile_replace": ActionUpdateFileReplace(),
+    "updateFile_diff": ActionUpdateFileDiff(),
     "exec": ActionExec(),
 }
 
@@ -185,19 +186,19 @@ def exec_actions(actions, ask=False):
     return [exec_action(action, ask=ask) for action in actions]
 
 def exec_action(action, ask=False):
-    if(isinstance(action["function"]["arguments"], str)):
+    if(isinstance(action.function.arguments, str)):
         try:
-            action["function"]["arguments"] = json.loads(action["function"]["arguments"])
+            action.function.arguments = json.loads(action.function.arguments)
         except Exception as e:
-            errmsg = f"Error parsing json from GPT: {e} - arguments={action['function']}"
+            errmsg = f"Error parsing json from GPT: {e} - arguments={action.function}"
             print(errmsg)
             return {
                 # "id": action.get("id"),
                 "error": errmsg
             }
-    arguments = action["function"]["arguments"]
+    arguments = action.function.arguments
     try:
-        runaction = ACTIONS[action["function"]["name"]]
+        runaction = ACTIONS[action.function.name]
     except Exception as e:
         print(f"Error finding function: {e}")
         return {
@@ -245,6 +246,22 @@ definitions = [
                 "content": {
                     "type": "string",
                     "description": "file content. Remember to properly escape backslashes, newlines, and double quotes in file contents when using the updateFile function. Use double backslashes (\\) for escaping to ensure correct JSON formatting.",
+                },
+            },
+            "required": ["path", "content"],
+        },
+    },
+    {
+        "name": "updateFile_diff",
+        "description": "Updates a file by applying a diff",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "path": {"type": "string", "description": "file path."},
+                "start": {"type": "integer", "description": "first line that the diff refers to (1-based)"},
+                "diff": {
+                    "type": "string",
+                    "description": "diff to apply, in simplified unified diff format (without headers). each line is prefixed by + for added lines, - for removed lines, or space for unchanged lines.",
                 },
             },
             "required": ["path", "content"],

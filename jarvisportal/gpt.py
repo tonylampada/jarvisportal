@@ -102,7 +102,7 @@ class GPT:
             thread_id=self.thread_id,
             run_id=self.run.id,
             tool_outputs=[
-                {"tool_call_id": a["id"], "output": json.dumps(r)}
+                {"tool_call_id": a.id, "output": json.dumps(r)}
                 for a, r in zip(actions, results)
             ],
         )

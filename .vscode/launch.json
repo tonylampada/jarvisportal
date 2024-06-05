@@ -6,7 +6,7 @@
     "configurations": [
         
         {
-            "name": "Python: Module",
+            "name": "GPTExec",
             "type": "python",
             "request": "launch",
             "module": "jarvisportal.gptexec",
