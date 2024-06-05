@@ -97,6 +97,46 @@ class ActionUpdateFileReplace():
             file.write(updated_data)
         return updated_data
 
+class ActionUpdateFileDiff():
+    def prompt(self, path: str, start: str, diff: str):
+        print(f"{cmd} apply diff {path} (from line {start})")
+        print(diff)
+
+    def run(self, path: str, start: str, diff: str):
+        start -= 1
+        # Read the original file content
+        with open(path, 'r') as file:
+            original_lines = file.readlines()
+
+        diff_lines = diff.splitlines()
+
+        line_end_modified = start + len([line for line in diff_lines if not line.startswith('-')])
+        line_end_orig = start + len([line for line in diff_lines if not line.startswith('-')])
+        original_segment = original_lines[start:line_end_orig]
+
+        new_lines = []
+        unchanged_lines = []
+        for line in diff_lines:
+            if line.startswith('+'):
+                new_lines.append(line[1:] + '\n')
+            elif line.startswith(' '):
+                new_lines.append(line[1:] + '\n')
+                unchanged_lines.append(line+'\n')
+            elif line.startswith('-'):
+                unchanged_lines.append(line+'\n')
+        for i, (orig_line, unchanged_line) in enumerate(zip(original_segment, unchanged_lines)):
+            if orig_line != unchanged_line[1:]:
+                errmsg = f"diff does not match (line {i + start + 1})\n"
+                errmsg += f" {orig_line}"
+                errmsg += unchanged_line
+                raise ValueError(errmsg)
+
+        modified_lines = original_lines[:start] + new_lines + original_lines[line_end_modified:]
+
+        with open(path, 'w') as file:
+            file.writelines(modified_lines)
+
+
 class ActionExec():
     def prompt(self, command: str):
         print(f"{cmd} exec {command}")
