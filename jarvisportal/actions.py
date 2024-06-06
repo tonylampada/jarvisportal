@@ -225,7 +225,7 @@ def exec_action(action, ask=False):
                 # "id": action.get("id"),
                 "error": errmsg
             }
-    arguments = action.function.arguments
+    arguments = dict(action.function.arguments)
     try:
         runaction = ACTIONS[action.function.name]
     except Exception as e:
@@ -237,7 +237,7 @@ def exec_action(action, ask=False):
     try:
         print("debug")
         print(arguments)
-        runaction.prompt(**arguments.__dict__)
+        runaction.prompt(**arguments)
     except Exception as e:
         return {
             # "id": action.get("id"),
@@ -251,7 +251,7 @@ def exec_action(action, ask=False):
                 "error": "denied by user"
             }
     try:
-        result = runaction.run(**arguments.__dict__)
+        result = runaction.run(**arguments)
         return result
         # return {
             # "id": action.get("id"),

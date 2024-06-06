@@ -60,6 +60,7 @@ class GPT:
                 thread_id=self.thread_id, run_id=self.run.id
             )
         answer = None
+        print(self.run.status)
         if self.run.status == "completed":
             messages = list(
                 self.client.beta.threads.messages.list(
@@ -82,19 +83,20 @@ class GPT:
                     after=self.last_step_id,
                 )
             )
-            step = steps[0]
-            if step.step_details.type != 'message_creation': # still dont quite understand, but I know it doesn have too_calls
-                try:
-                    answer = {"type": "action", "actions": step.step_details.tool_calls}
-                except:
-                    print(step)
-                    raise
+            step = [s for s in steps if s.type == 'tool_calls'][0]
+            try:
+                answer = {"type": "action", "actions": step.step_details.tool_calls}
+            except:
+                print(step)
+                raise
             self.last_step_id = step.id
         elif self.run.status == "failed":
             message = "RUN FAILED."
             if self.run.last_error:
                 message = f"{message} {self.run.last_error}"
             print(message)
+        else:
+            raise Exception(f"unknown run status {self.run.status}")
         return answer
 
     def send_action_results(self, actions, results):
