@@ -4,7 +4,6 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
         {
             "name": "GPTExec",
             "type": "python",
@@ -12,6 +11,13 @@
             "module": "jarvisportal.gptexec",
             //add cmdline args here
             "args": ["asst_sZGey74C1c8En5BRXFMo40HE"],
+            "justMyCode": true
+        },
+        {
+            "name": "JarvisPortal",
+            "type": "python",
+            "request": "launch",
+            "module": "jarvisportal.jarvisportal",
             "justMyCode": true
         }
     ]

@@ -3,7 +3,7 @@ import os
 import sys
 import subprocess
 # from jarvisportal.actions import action_exec, action_createFile, action_updateFile_anchors, action_updateFile_lines, action_updateFile_replace, action_updateFile_diff, set_cli_input
-from jarvisportal.actions import set_cli_input, ActionExec, ActionCreateFile, ActionUpdateFileAnchors, ActionUpdateFileLines, ActionUpdateFileReplace
+from jarvisportal.actions import set_cli_input, ActionExec, ActionCreateFile, ActionUpdateFileAnchors, ActionUpdateFileLines, ActionUpdateFileReplace, ActionReadFileWithLineNumbers
 #, ActionUpdateFileDiff
 
 @pytest.fixture(scope='module', autouse=True)
@@ -127,4 +127,33 @@ Being a file
 Makes me happy
 '''
     assert content == expected_content, "Content does not match expected content"
+    os.remove(filepath)
+
+def test_read_file_with_line_numbers():
+    original_content = '''hello
+
+I am a file
+I have content
+Being a file
+Makes me happy
+'''
+    expected_output = '''1: hello
+2: 
+3: I am a file
+4: I have content
+5: Being a file
+6: Makes me happy
+'''
+
+    filepath = '/tmp/testfile_read_with_line_numbers.txt'
+
+    # Create the file with original content
+    os.remove(filepath) if os.path.exists(filepath) else None
+    with open(filepath, 'w') as file:
+        file.write(original_content)
+
+    action = ActionReadFileWithLineNumbers()
+    result = action.run(filepath)
+
+    assert result == expected_output, "The content with line numbers does not match the expected output"
     os.remove(filepath)

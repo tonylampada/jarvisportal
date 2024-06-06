@@ -2,6 +2,7 @@ import sys
 import os
 import json
 import subprocess
+from .bunch import Bunch
 
 cli_input = sys.stdin
 cmd = '\U0001F47B'
@@ -31,6 +32,28 @@ class ActionCreateFile():
         with open(path, "w") as file:
             file.write(content)
         return {"success": True}
+
+class ActionReadFileWithLineNumbers():
+    def prompt(self, path: str):
+        print(f"{cmd} read file {path} with line numbers")
+
+    def run(self, path: str):
+        """
+        Reads a file and prefixes each line with its line number.
+        :param path: file path
+        :return: the content of the file with line numbers
+        """
+        if not os.path.exists(path):
+            print(f"ERROR: file {path} doesn't exist")
+            return {"error": f"file {path} doesn't exist. Please provide a valid file path."}
+
+        with open(path, 'r') as file:
+            lines = file.readlines()
+
+        numbered_lines = [f"{i + 1}: {line}" for i, line in enumerate(lines)]
+        content_with_line_numbers = "".join(numbered_lines)
+        
+        return content_with_line_numbers
 
 class ActionUpdateFileLines():
     def prompt(self, path: str, line_start: int, line_end: int, content: str):
@@ -110,8 +133,11 @@ class ActionUpdateFileDiff():
 
         diff_lines = diff.splitlines()
 
-        line_end_modified = start + len([line for line in diff_lines if not line.startswith('-')])
-        line_end_orig = start + len([line for line in diff_lines if not line.startswith('-')])
+        if start > 1 and len(diff_lines) > 0 and diff_lines[0].startswith(('+', '-')):
+            raise ValueError("The first line of the diff cannot be an addition or subtraction when start > 1. Confirm the content you want to change by providing a lower start and the first diff line with a space.")
+        
+        # line_end_modified = start + len([line for line in diff_lines if not line.startswith('-')])
+        line_end_orig = start + len([line for line in diff_lines if not line.startswith('+')])
         original_segment = original_lines[start:line_end_orig]
 
         new_lines = []
@@ -131,7 +157,7 @@ class ActionUpdateFileDiff():
                 errmsg += unchanged_line
                 raise ValueError(errmsg)
 
-        modified_lines = original_lines[:start] + new_lines + original_lines[line_end_modified:]
+        modified_lines = original_lines[:start] + new_lines + original_lines[line_end_orig:]
 
         with open(path, 'w') as file:
             file.writelines(modified_lines)
@@ -175,6 +201,7 @@ def _cmdexec(cmd):
 
 ACTIONS = {
     "createFile": ActionCreateFile(),
+    "readFileWithLineNumbers": ActionReadFileWithLineNumbers(),
     "updateFile_lines": ActionUpdateFileLines(),
     "updateFile_anchors": ActionUpdateFileAnchors(),
     "updateFile_replace": ActionUpdateFileReplace(),
@@ -186,6 +213,8 @@ def exec_actions(actions, ask=False):
     return [exec_action(action, ask=ask) for action in actions]
 
 def exec_action(action, ask=False):
+    if isinstance(action, dict):
+        action = Bunch(action)
     if(isinstance(action.function.arguments, str)):
         try:
             action.function.arguments = json.loads(action.function.arguments)
@@ -208,7 +237,7 @@ def exec_action(action, ask=False):
     try:
         print("debug")
         print(arguments)
-        runaction.prompt(**arguments)
+        runaction.prompt(**arguments.__dict__)
     except Exception as e:
         return {
             # "id": action.get("id"),
@@ -222,7 +251,7 @@ def exec_action(action, ask=False):
                 "error": "denied by user"
             }
     try:
-        result = runaction.run(**arguments)
+        result = runaction.run(**arguments.__dict__)
         return result
         # return {
             # "id": action.get("id"),
@@ -250,6 +279,20 @@ definitions = [
             },
             "required": ["path", "content"],
         },
+    },
+    {
+        "name": "readFileWithLineNumbers",
+        "description": "Reads a file and prefixes each line with its line number. Use this before updateFile_diff.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "path": {
+                    "type": "string",
+                    "description": "File path."
+                }
+            },
+            "required": ["path"]
+        }
     },
     {
         "name": "updateFile_diff",
