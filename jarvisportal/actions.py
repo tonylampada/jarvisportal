@@ -3,6 +3,7 @@ import os
 import json
 import subprocess
 from .bunch import Bunch
+from .diffstr import applydiff
 
 cli_input = sys.stdin
 cmd = '\U0001F47B'
@@ -126,46 +127,12 @@ class ActionUpdateFileDiff():
         print(diff)
 
     def run(self, path: str, start: str, diff: str):
-        start -= 1
-        # Read the original file content
         with open(path, 'r') as file:
-            original_lines = file.readlines()
-
-        diff_lines = diff.splitlines()
-
-        if start > 1 and len(diff_lines) > 0 and diff_lines[0].startswith(('+', '-')):
-            raise ValueError("The first line of the diff cannot be an addition or subtraction when start > 1. Confirm the content you want to change by providing a lower start and the first diff line with a space.")
-        
-        # line_end_modified = start + len([line for line in diff_lines if not line.startswith('-')])
-        line_end_orig = start + len([line for line in diff_lines if not line.startswith('+')])
-        original_segment = original_lines[start:line_end_orig]
-
-        new_lines = []
-        unchanged_lines = []
-        for line in diff_lines:
-            if line.startswith('+'):
-                new_lines.append(line[1:] + '\n')
-            elif line.startswith(' '):
-                new_lines.append(line[1:] + '\n')
-                unchanged_lines.append(line+'\n')
-            elif line.startswith('-'):
-                unchanged_lines.append(line+'\n')
-        errmsg = "start diff validation...\n"
-        for i, (orig_line, unchanged_line) in enumerate(zip(original_segment, unchanged_lines)):
-            if orig_line != unchanged_line[1:]:
-                errmsg += f"> line {i + start + 1} does NOT match. This is an error!\n"
-                errmsg += f" {orig_line}"
-                errmsg += unchanged_line
-                raise ValueError(errmsg)
-            else:
-                errmsg += f"> line {i + start + 1} matches. OK!\n"
-                errmsg += f" {orig_line}"
-                errmsg += unchanged_line
-
-        modified_lines = original_lines[:start] + new_lines + original_lines[line_end_orig:]
+            content = file.read()
+        result = applydiff(content, start, diff)
 
         with open(path, 'w') as file:
-            file.writelines(modified_lines)
+            file.write(result)
 
 
 class ActionExec():
