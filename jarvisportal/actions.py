@@ -150,12 +150,17 @@ class ActionUpdateFileDiff():
                 unchanged_lines.append(line+'\n')
             elif line.startswith('-'):
                 unchanged_lines.append(line+'\n')
+        errmsg = "start diff validation...\n"
         for i, (orig_line, unchanged_line) in enumerate(zip(original_segment, unchanged_lines)):
             if orig_line != unchanged_line[1:]:
-                errmsg = f"diff does not match (line {i + start + 1})\n"
+                errmsg += f"> line {i + start + 1} does NOT match. This is an error!\n"
                 errmsg += f" {orig_line}"
                 errmsg += unchanged_line
                 raise ValueError(errmsg)
+            else:
+                errmsg += f"> line {i + start + 1} matches. OK!\n"
+                errmsg += f" {orig_line}"
+                errmsg += unchanged_line
 
         modified_lines = original_lines[:start] + new_lines + original_lines[line_end_orig:]
 

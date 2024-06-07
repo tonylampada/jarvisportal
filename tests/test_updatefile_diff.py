@@ -70,7 +70,14 @@ Makes me happy
     try:
         ActionUpdateFileDiff().run(filepath, 3, diff)
     except ValueError as e:
-        assert str(e) == "diff does not match (line 4)\n I have content\n-I do not match\n"
+        assert str(e) == """start diff validation...
+> line 3 matches. OK!
+ I am a file
+ I am a file
+> line 4 does NOT match. This is an error!
+ I have content
+-I do not match
+"""
     else:
         assert False, "Expected ValueError was not raised"
     finally:
@@ -244,7 +251,14 @@ Makes me happy
     try:
         ActionUpdateFileDiff().run(filepath, 3, diff)
     except ValueError as e:
-        assert str(e) == "diff does not match (line 4)\n I have content\n-I do not match\n"
+        assert str(e) == """start diff validation...
+> line 3 matches. OK!
+ I am a file
+ I am a file
+> line 4 does NOT match. This is an error!
+ I have content
+-I do not match
+"""
     else:
         assert False, "Expected ValueError was not raised"
     finally:
