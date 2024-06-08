@@ -43,7 +43,7 @@ def adjust_parameters_with_some_room_for_error(original_text, start, diff):
                 return start + r, diff
     return start, diff
 
-def applydiff(original_text: str, start: int, diff: str):
+def applydiff1(original_text: str, start: int, diff: str):
     validatediff(diff)
     diff = remove_empty_lines_from_start_and_end(diff)
     diff = remove_anchors_from_end(diff)
@@ -91,3 +91,54 @@ def applydiff(original_text: str, start: int, diff: str):
         new_content += f"{start+i}:{line}"
 
     return ''.join(modified_lines), new_content
+
+def _new_line(io, id, orig_line, diff_line, log):
+    orig_line_noeol = orig_line[:-1] if orig_line else None
+    if diff_line.startswith('+'):
+        new_line = diff_line[1:] + '\n'
+        log += f"OK <diffline {id+1}> added [{diff_line}]\n"
+    elif diff_line.startswith('-'):
+        if not same(orig_line, diff_line):
+            log += f"ERR <diffline {id+1}> mismatch. [{orig_line_noeol}]!=[{diff_line}]\n"
+            raise ValueError(log)
+        new_line = None
+        io += 1
+        log += f"OK <diffline {id+1}> removed. [{orig_line_noeol}]==[{diff_line}]\n"
+    else:
+        if not same(orig_line, diff_line):
+            log += f"ERR <diffline {id+1}> mismatch. [{orig_line_noeol}]!=[{diff_line}]\n"
+            raise ValueError(log)
+        if orig_line is None:
+            log += f"ERR <diffline {id+1}> mismatch. [EOF]!=[{diff_line}]\n"
+            raise ValueError(log)
+        new_line = orig_line
+        io += 1
+        log += f"OK <diffline {id+1}> kept. [{orig_line_noeol}]==[{diff_line}]\n"
+    id += 1
+    return io, id, new_line, log
+
+def applydiff(original_text: str, start: int, diff: str):
+    validatediff(diff)
+    diff = remove_empty_lines_from_start_and_end(diff)
+    start -= 1
+    original_lines = original_text.splitlines(keepends=True)
+    diff_lines = diff.splitlines()
+
+    if start > 1 and len(diff_lines) > 0 and diff_lines[0].startswith(('+', '-')):
+        raise ValueError("The first line of the diff cannot be an addition or subtraction when start > 1. Confirm the content you want to change by providing a lower start and the first diff line with a space.")
+    
+    start, diff = adjust_parameters_with_some_room_for_error(original_text, start, diff)
+    diff_lines = diff.splitlines()
+
+    new_lines = original_lines[:start]
+    io, id = start, 0
+    log = "start diff validation...\n"
+    while id < len(diff_lines):
+        diff_line = diff_lines[id]
+        orig_line = original_lines[io] if io < len(original_lines) else None
+        io, id, new_line, log = _new_line(io, id, orig_line, diff_line, log)
+        if new_line is not None:
+            new_lines.append(new_line)
+    new_lines += original_lines[io:]
+    return ''.join(new_lines), ""
+    
