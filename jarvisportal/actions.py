@@ -269,7 +269,7 @@ definitions = [
     },
     {
         "name": "updateFile_diff",
-        "description": "Updates a file by applying a diff",
+        "description": "Updates a file by applying a diff. Returns a snippet of the lines changed, with line numbers. If there's an error, the error message contains a debug log that should help you see what's wront with the diff.",
         "parameters": {
             "type": "object",
             "properties": {
