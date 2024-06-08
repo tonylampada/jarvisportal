@@ -19,7 +19,7 @@ def test_apply_diff_success():
 +Makes me very happy
 '''
 
-    result = applydiff(original_content, 3, diff)
+    result = applydiff(original_content, 3, diff)[0]
 
     expected_content = '''hello
 
@@ -60,8 +60,12 @@ from jarvisportal.actions import ActionUpdateFileDiff
 
 def test_empty_diff():
     diff = ''
-    result = applydiff(original_content, 3, diff)
-    assert result == original_content, "Content should not change with empty diff"
+    try:
+        applydiff(original_content, 3, diff)
+    except ValueError as e:
+        assert str(e) == "Diff is empty"
+    else:
+        assert False, "Expected ValueError was not raised"
 
 def test_add_lines():
     diff = ''' I am a file
@@ -71,7 +75,7 @@ def test_add_lines():
  Being a file
 '''
 
-    result = applydiff(original_content, 3, diff)
+    result = applydiff(original_content, 3, diff)[0]
 
     expected_content = '''hello
 
@@ -91,7 +95,7 @@ def test_remove_lines():
  Being a file
 '''
 
-    result = applydiff(original_content, 3, diff)
+    result = applydiff(original_content, 3, diff)[0]
 
     expected_content = '''hello
 
@@ -112,7 +116,7 @@ def test_modify_multiple_lines():
 +Makes me very happy
 '''
 
-    result = applydiff(original_content, 3, diff)
+    result = applydiff(original_content, 3, diff)[0]
     expected_content = '''hello
 
 I am a file

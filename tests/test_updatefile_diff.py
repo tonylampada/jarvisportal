@@ -104,13 +104,12 @@ Makes me happy
     with open(filepath, 'w') as file:
         file.write(original_content)
 
-    ActionUpdateFileDiff().run(filepath, 3, diff)
-
-    with open(filepath, 'r') as file:
-        content = file.read()
-
-    assert content == original_content, "Content should not change with empty diff"
-    os.remove(filepath)
+    try:
+        ActionUpdateFileDiff().run(filepath, 3, diff)
+    except ValueError as e:
+        assert str(e) == "Diff is empty"
+    else:
+        assert False, "Expected ValueError was not raised"
 
 def test_add_lines():
     original_content = '''hello

@@ -129,10 +129,11 @@ class ActionUpdateFileDiff():
     def run(self, path: str, start: str, diff: str):
         with open(path, 'r') as file:
             content = file.read()
-        result = applydiff(content, start, diff)
+        result, new_content = applydiff(content, start, diff)
 
         with open(path, 'w') as file:
             file.write(result)
+        return new_content
 
 
 class ActionExec():

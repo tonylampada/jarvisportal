@@ -1,4 +1,12 @@
 
+def validatediff(diff):
+    if not diff:
+        raise ValueError("Diff is empty")
+    diff_lines = diff.splitlines()
+    changing_lines = [l for l in diff_lines if l.startswith(('+', '-'))]
+    if not changing_lines:
+        raise ValueError("This diff is not changing anything. Add lines with +, remove with -")
+
 def remove_empty_lines_from_start_and_end(s):
     lines = s.splitlines()
     if not lines:
@@ -36,6 +44,7 @@ def adjust_parameters_with_some_room_for_error(original_text, start, diff):
     return start, diff
 
 def applydiff(original_text: str, start: int, diff: str):
+    validatediff(diff)
     diff = remove_empty_lines_from_start_and_end(diff)
     diff = remove_anchors_from_end(diff)
     start -= 1
@@ -76,5 +85,9 @@ def applydiff(original_text: str, start: int, diff: str):
             errmsg += unchanged_line
 
     modified_lines = original_lines[:start] + new_lines + original_lines[line_end_orig:]
+    new_content_lines = modified_lines[start-1:start + len(new_lines) + 1]
+    new_content = ""
+    for i, line in enumerate(new_content_lines):
+        new_content += f"{start+i}:{line}"
 
-    return ''.join(modified_lines)
+    return ''.join(modified_lines), new_content
