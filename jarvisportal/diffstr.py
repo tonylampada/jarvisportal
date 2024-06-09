@@ -43,6 +43,13 @@ def adjust_parameters_with_some_room_for_error(original_text, start, diff):
                 return start + r, diff
     return start, diff
 
+def _new_content(modified_lines, new_lines, start):
+    new_content_lines = modified_lines[start-1:start + len(new_lines) + 1]
+    new_content = ""
+    for i, line in enumerate(new_content_lines):
+        new_content += f"{start+i}:{line}"
+    return new_content
+
 def applydiff1(original_text: str, start: int, diff: str):
     validatediff(diff)
     diff = remove_empty_lines_from_start_and_end(diff)
@@ -85,18 +92,31 @@ def applydiff1(original_text: str, start: int, diff: str):
             errmsg += unchanged_line
 
     modified_lines = original_lines[:start] + new_lines + original_lines[line_end_orig:]
-    new_content_lines = modified_lines[start-1:start + len(new_lines) + 1]
-    new_content = ""
-    for i, line in enumerate(new_content_lines):
-        new_content += f"{start+i}:{line}"
+    new_content = _new_content(modified_lines, new_lines, start)
 
     return ''.join(modified_lines), new_content
 
-def _new_line(io, id, orig_line, diff_line, log):
+def _mistakenly_when_adding_empty_line_on_top_of_empty_line(io, id, orig_line, diff_line, original_lines, diff_lines):
+    if len(diff_lines) <= id+1 or len(original_lines) <= io+1:
+        return False
+    next_diff_line = diff_lines[id+1]
+    next_orig_line = original_lines[io+1]
+    if not next_diff_line.startswith(('+', '-')):
+        if not same(orig_line, next_orig_line) and same(next_orig_line, next_diff_line):
+            # TODO: explain
+            return True
+    return False
+
+def _new_line(io, id, orig_line, diff_line, original_lines, diff_lines, log):
     orig_line_noeol = orig_line[:-1] if orig_line else None
     if diff_line.startswith('+'):
-        new_line = diff_line[1:] + '\n'
-        log += f"OK <diffline {id+1}> added [{diff_line}]\n"
+        if _mistakenly_when_adding_empty_line_on_top_of_empty_line(io, id, orig_line, diff_line, original_lines, diff_lines):
+            new_line = orig_line
+            io += 1
+            log += f"WARN <diffline {id+1}> mistakenly_when_adding_empty_line_on_top_of_empty_line. [{orig_line_noeol}]~=[{diff_line}]\n"
+        else:
+            new_line = diff_line[1:] + '\n'
+            log += f"OK <diffline {id+1}> added [{diff_line}]\n"
     elif diff_line.startswith('-'):
         if not same(orig_line, diff_line):
             log += f"ERR <diffline {id+1}> mismatch. [{orig_line_noeol}]!=[{diff_line}]\n"
@@ -130,15 +150,16 @@ def applydiff(original_text: str, start: int, diff: str):
     start, diff = adjust_parameters_with_some_room_for_error(original_text, start, diff)
     diff_lines = diff.splitlines()
 
-    new_lines = original_lines[:start]
+    new_lines = []
     io, id = start, 0
     log = "start diff validation...\n"
     while id < len(diff_lines):
         diff_line = diff_lines[id]
         orig_line = original_lines[io] if io < len(original_lines) else None
-        io, id, new_line, log = _new_line(io, id, orig_line, diff_line, log)
+        io, id, new_line, log = _new_line(io, id, orig_line, diff_line, original_lines, diff_lines, log)
         if new_line is not None:
             new_lines.append(new_line)
-    new_lines += original_lines[io:]
-    return ''.join(new_lines), ""
+    modified_lines = original_lines[:start] + new_lines + original_lines[io:]
+    new_content = _new_content(modified_lines, new_lines, start)
+    return ''.join(modified_lines), new_content
     

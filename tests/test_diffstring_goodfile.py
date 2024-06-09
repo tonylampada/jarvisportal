@@ -134,12 +134,8 @@ def test_no_matching_lines():
         applydiff(original_content, 3, diff)
     except ValueError as e:
         assert str(e) == """start diff validation...
-> line 3 matches. OK!
- I am a file
- I am a file
-> line 4 does NOT match. This is an error!
- I have content
--I do not match
+OK <diffline 1> kept. [I am a file]==[ I am a file]
+ERR <diffline 2> mismatch. [I have content]!=[-I do not match]
 """
     else:
         assert False, "Expected ValueError was not raised"

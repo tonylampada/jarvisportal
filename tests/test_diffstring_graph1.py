@@ -121,6 +121,7 @@ def test_applydiff_diffperfect_start_15():
 22:        return display_str.strip()
 23:
 24:    def dijkstra(self, start, end):
+25:        import heapq
 """
 
 
