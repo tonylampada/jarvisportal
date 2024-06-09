@@ -5,12 +5,21 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "GPTExec",
+            "name": "GPTExec diff",
             "type": "python",
             "request": "launch",
             "module": "jarvisportal.gptexec",
             //add cmdline args here
             "args": ["asst_sZGey74C1c8En5BRXFMo40HE"],
+            "justMyCode": true
+        },
+        {
+            "name": "GPTExec replacelines",
+            "type": "python",
+            "request": "launch",
+            "module": "jarvisportal.gptexec",
+            //add cmdline args here
+            "args": ["asst_wBLOfbUo0zCPKb4qeOZdl2EQ"],
             "justMyCode": true
         },
         {

@@ -4,6 +4,7 @@ import json
 import subprocess
 from .bunch import Bunch
 from .diffstr import applydiff
+from .replacelinesstr import replacelines
 
 cli_input = sys.stdin
 cmd = '\U0001F47B'
@@ -135,6 +136,23 @@ class ActionUpdateFileDiff():
             file.write(result)
         return new_content
 
+class ActionUpdateFileReplaceLines():
+    def prompt(self, path: str, find_lines: str, replace_lines: str):
+        print(f"""{cmd} apply diff {path}
+----- find
+{find_lines}
+----- replace with
+{replace_lines}""")
+
+    def run(self, path: str, find_lines: str, replace_lines: str):
+        with open(path, 'r') as file:
+            content = file.read()
+        result = replacelines(content, find_lines, replace_lines)
+
+        with open(path, 'w') as file:
+            file.write(result)
+        return True
+
 
 class ActionExec():
     def prompt(self, command: str):
@@ -179,6 +197,7 @@ ACTIONS = {
     "updateFile_anchors": ActionUpdateFileAnchors(),
     "updateFile_replace": ActionUpdateFileReplace(),
     "updateFile_diff": ActionUpdateFileDiff(),
+    "updateFile_replaceLines": ActionUpdateFileReplaceLines(),
     "exec": ActionExec(),
 }
 
@@ -281,6 +300,19 @@ definitions = [
                 },
             },
             "required": ["path", "content"],
+        },
+    },
+    {
+        "name": "updateFile_replaceLines",
+        "description": "Replaces all instances of old_content with new_content in a file",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "path": {"type": "string", "description": "file path."},
+                "find_lines": {"type": "string", "description": "the lines to find"},
+                "replace_lines": {"type": "string", "description": "the lines to replace with"},
+            },
+            "required": ["path", "find_lines", "replace_lines"],
         },
     },
     {

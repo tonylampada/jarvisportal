@@ -1,2 +1,3 @@
-O arquivo ./files2/graphs.py tem uma lib pra manipular grafos. Dá uma olhada no código e adicione um método pra mostrar o grafo.
+O arquivo ./files2/graphs.py tem uma lib pra manipular grafos. Dá uma olhada no código. Adicione um método pra mostrar o grafo.
 
+O arquivo ./files2/graphs.py tem uma lib pra manipular grafos. Dá uma olhada no código. No metodo dijkstra, renomeie a variavel shortest_path para shortest
