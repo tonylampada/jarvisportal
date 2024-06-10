@@ -5,7 +5,7 @@ with open("requirements.txt", "r") as fh:
 
 setup(
     name='jarvisportal',
-    version='1.0.10',
+    version='1.0.11',
     description='Give Chat GPT access to your terminal',
     author='Tony Lampada',
     packages=find_packages(exclude=("tests",)),

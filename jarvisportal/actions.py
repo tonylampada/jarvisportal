@@ -137,17 +137,17 @@ class ActionUpdateFileDiff():
         return new_content
 
 class ActionUpdateFileReplaceLines():
-    def prompt(self, path: str, find_lines: str, replace_lines: str):
+    def prompt(self, path: str, lines_find: str, lines_replace: str):
         print(f"""{cmd} apply diff {path}
 ----- find
-{find_lines}
+{lines_find}
 ----- replace with
-{replace_lines}""")
+{lines_replace}""")
 
-    def run(self, path: str, find_lines: str, replace_lines: str):
+    def run(self, path: str, lines_find: str, lines_replace: str):
         with open(path, 'r') as file:
             content = file.read()
-        result = replacelines(content, find_lines, replace_lines)
+        result = replacelines(content, lines_find, lines_replace)
 
         with open(path, 'w') as file:
             file.write(result)
@@ -197,7 +197,7 @@ ACTIONS = {
     "updateFile_anchors": ActionUpdateFileAnchors(),
     "updateFile_replace": ActionUpdateFileReplace(),
     "updateFile_diff": ActionUpdateFileDiff(),
-    "updateFile_replaceLines": ActionUpdateFileReplaceLines(),
+    "updateFile_replacelines": ActionUpdateFileReplaceLines(),
     "exec": ActionExec(),
 }
 
@@ -309,11 +309,11 @@ definitions = [
             "type": "object",
             "properties": {
                 "path": {"type": "string", "description": "file path."},
-                "find_lines": {"type": "string", "description": "the lines to find"},
-                "replace_lines": {"type": "string", "description": "the lines to replace with"},
+                "lines_find": {"type": "string", "description": "the lines to find"},
+                "lines_replace": {"type": "string", "description": "the lines to replace with"}
             },
-            "required": ["path", "find_lines", "replace_lines"],
-        },
+            "required": ["path", "lines_find", "lines_replace"]
+        }
     },
     {
         "name": "exec",
